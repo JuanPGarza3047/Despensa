@@ -7,13 +7,21 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Mi Lista de Compras</h1>
+  <header>
+    <h1>🛒 Mi Lista de Compras</h1>
+    <button id="modoBtn" onclick="toggleModo()">🌙</button>
+  </header>
 
-  <input type="text" id="productoInput" placeholder="Escribe un producto">
-  <button onclick="agregarProducto()">Agregar</button>
+  <main>
+    <div class="input-container">
+      <input type="text" id="productoInput" placeholder="Escribe un producto">
+      <button onclick="agregarProducto()">Agregar</button>
+    </div>
 
-  <ul id="listaCompras"></ul>
+    <ul id="listaCompras"></ul>
+  </main>
 
   <script src="script.js"></script>
 </body>
 </html>
+
