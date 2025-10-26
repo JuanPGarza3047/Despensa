@@ -8,13 +8,19 @@ function agregarProducto() {
   texto.textContent = valor;
   li.appendChild(texto);
 
-  // Botón de palomita
-  const checkBtn = document.createElement('button');
-  checkBtn.textContent = "✓";
-  checkBtn.onclick = () => {
-    checkBtn.classList.toggle('comprado');
+  // Botón de estado (⭕️ -> ✅)
+  const estadoBtn = document.createElement('button');
+  estadoBtn.textContent = "⭕️";
+  estadoBtn.onclick = () => {
+    if (estadoBtn.textContent === "⭕️") {
+      estadoBtn.textContent = "✅";
+      estadoBtn.classList.add('comprado');
+    } else {
+      estadoBtn.textContent = "⭕️";
+      estadoBtn.classList.remove('comprado');
+    }
   };
-  li.appendChild(checkBtn);
+  li.appendChild(estadoBtn);
 
   // Botón subir
   const upBtn = document.createElement('button');
