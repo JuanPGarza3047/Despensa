@@ -1,4 +1,3 @@
-
 function agregarProducto() {
   const input = document.getElementById('productoInput');
   const valor = input.value.trim();
