@@ -1,26 +1,56 @@
+
 function agregarProducto() {
   const input = document.getElementById('productoInput');
   const valor = input.value.trim();
   if (valor === "") return;
 
   const li = document.createElement('li');
-  li.textContent = valor;
+  const texto = document.createElement('span');
+  texto.textContent = valor;
+  li.appendChild(texto);
 
-  // Botón para marcar como comprado
-  const compradoBtn = document.createElement('button');
-  compradoBtn.textContent = "✓";
-  compradoBtn.onclick = () => {
-    li.classList.toggle('comprado');
+  // Botón de palomita
+  const checkBtn = document.createElement('button');
+  checkBtn.textContent = "✓";
+  checkBtn.onclick = () => {
+    checkBtn.classList.toggle('comprado');
   };
-  li.appendChild(compradoBtn);
+  li.appendChild(checkBtn);
 
-  // Botón para eliminar
-  const eliminarBtn = document.createElement('button');
-  eliminarBtn.textContent = "🗑";
-  eliminarBtn.onclick = () => li.remove();
-  li.appendChild(eliminarBtn);
+  // Botón subir
+  const upBtn = document.createElement('button');
+  upBtn.textContent = "⬆️";
+  upBtn.onclick = () => moverElemento(li, -1);
+  li.appendChild(upBtn);
+
+  // Botón bajar
+  const downBtn = document.createElement('button');
+  downBtn.textContent = "⬇️";
+  downBtn.onclick = () => moverElemento(li, 1);
+  li.appendChild(downBtn);
+
+  // Botón eliminar
+  const deleteBtn = document.createElement('button');
+  deleteBtn.textContent = "🗑";
+  deleteBtn.onclick = () => li.remove();
+  li.appendChild(deleteBtn);
 
   document.getElementById('listaCompras').appendChild(li);
   input.value = "";
   input.focus();
+}
+
+function moverElemento(elemento, direccion) {
+  const lista = document.getElementById('listaCompras');
+  const items = Array.from(lista.children);
+  const indice = items.indexOf(elemento);
+  const nuevoIndice = indice + direccion;
+
+  if (nuevoIndice >= 0 && nuevoIndice < items.length) {
+    if (direccion === -1) {
+      lista.insertBefore(elemento, items[nuevoIndice]);
+    } else {
+      lista.insertBefore(items[nuevoIndice], elemento);
+    }
+  }
 }
