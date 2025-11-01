@@ -90,15 +90,18 @@ function toggleModo() {
 function activarSortable() {
   const listaDOM = document.getElementById('listaCompras');
 
-  Sortable.create(listaDOM, {
-    animation: 150,
-    ghostClass: 'sortable-ghost',
-    delay: 200,           // tiempo de pulsación larga (ms)
-    delayOnTouchOnly: true, // solo aplica en pantallas táctiles
-    onEnd: function() {
-      actualizarOrdenDesdeDOM();
-    }
-  });
+Sortable.create(listaDOM, {
+  animation: 150,
+  ghostClass: 'sortable-ghost',
+  delay: 200,             // long-press ms
+  delayOnTouchOnly: true, // only delay for touch devices
+  forceFallback: true,    // IMPORTANT: use Sortable's fallback drag on touch to avoid native text selection
+  fallbackClass: 'sortable-fallback',
+  onEnd: function() {
+    actualizarOrdenDesdeDOM();
+  }
+});
+
 }
 
 // Guarda el nuevo orden en localStorage
