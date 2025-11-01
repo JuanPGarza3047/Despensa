@@ -13,6 +13,8 @@ window.onload = function() {
     document.body.classList.add("oscuro");
     document.getElementById("modoBtn").textContent = "☀️";
   }
+
+  activarDragAndDrop();
 };
 
 function agregarProducto() {
@@ -30,6 +32,14 @@ function agregarProducto() {
 
 function crearElemento(texto, comprado) {
   const li = document.createElement('li');
+
+  // Drag handle
+  const handle = document.createElement('span');
+  handle.textContent = "↕️";
+  handle.classList.add('drag-handle');
+  li.appendChild(handle);
+
+  // Texto
   const span = document.createElement('span');
   span.textContent = texto;
   li.appendChild(span);
@@ -40,18 +50,6 @@ function crearElemento(texto, comprado) {
   if (comprado) estadoBtn.classList.add('comprado');
   estadoBtn.onclick = () => toggleEstado(estadoBtn, texto);
   li.appendChild(estadoBtn);
-
-  // Subir
-  const upBtn = document.createElement('button');
-  upBtn.textContent = "⬆️";
-  upBtn.onclick = () => moverElemento(li, -1);
-  li.appendChild(upBtn);
-
-  // Bajar
-  const downBtn = document.createElement('button');
-  downBtn.textContent = "⬇️";
-  downBtn.onclick = () => moverElemento(li, 1);
-  li.appendChild(downBtn);
 
   // Eliminar
   const deleteBtn = document.createElement('button');
@@ -67,7 +65,6 @@ function toggleEstado(btn, texto) {
   const comprado = btn.classList.contains('comprado');
   btn.textContent = comprado ? "✅" : "⭕️";
 
-  // Actualizar en la lista
   const index = lista.findIndex(item => item.texto === texto);
   if (index !== -1) lista[index].comprado = comprado;
   guardarLista();
@@ -77,25 +74,6 @@ function eliminarElemento(li, texto) {
   li.remove();
   lista = lista.filter(item => item.texto !== texto);
   guardarLista();
-}
-
-function moverElemento(elemento, direccion) {
-  const listaDOM = document.getElementById('listaCompras');
-  const items = Array.from(listaDOM.children);
-  const indice = items.indexOf(elemento);
-  const nuevoIndice = indice + direccion;
-
-  if (nuevoIndice >= 0 && nuevoIndice < items.length) {
-    if (direccion === -1) {
-      listaDOM.insertBefore(elemento, items[nuevoIndice]);
-    } else {
-      listaDOM.insertBefore(items[nuevoIndice], elemento);
-    }
-    // Reordenar en la lista guardada
-    const [item] = lista.splice(indice, 1);
-    lista.splice(nuevoIndice, 0, item);
-    guardarLista();
-  }
 }
 
 function guardarLista() {
@@ -110,4 +88,62 @@ function toggleModo() {
   const oscuro = body.classList.contains("oscuro");
   boton.textContent = oscuro ? "☀️" : "🌙";
   localStorage.setItem("modoOscuro", oscuro);
+}
+
+/* ================================
+   🚀 Drag and Drop
+================================== */
+function activarDragAndDrop() {
+  const listaDOM = document.getElementById('listaCompras');
+  let draggedItem = null;
+
+  listaDOM.addEventListener('dragstart', (e) => {
+    if (!e.target.classList.contains('drag-handle') && !e.target.closest('.drag-handle')) return;
+    draggedItem = e.target.closest('li');
+    draggedItem.classList.add('dragging');
+  });
+
+  listaDOM.addEventListener('dragend', (e) => {
+    if (draggedItem) {
+      draggedItem.classList.remove('dragging');
+      draggedItem = null;
+      actualizarOrdenLista();
+    }
+  });
+
+  listaDOM.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const dragging = document.querySelector('.dragging');
+    if (!dragging) return;
+    const afterElement = getDragAfterElement(listaDOM, e.clientY);
+    if (afterElement == null) {
+      listaDOM.appendChild(dragging);
+    } else {
+      listaDOM.insertBefore(dragging, afterElement);
+    }
+  });
+}
+
+function getDragAfterElement(container, y) {
+  const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
+  return draggableElements.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset: offset, element: child };
+    } else {
+      return closest;
+    }
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function actualizarOrdenLista() {
+  const items = document.querySelectorAll('#listaCompras li span:nth-of-type(2)');
+  lista = Array.from(items).map(span => {
+    const texto = span.textContent;
+    const guardado = JSON.parse(localStorage.getItem("listaCompras")) || [];
+    const item = guardado.find(i => i.texto === texto);
+    return { texto, comprado: item ? item.comprado : false };
+  });
+  guardarLista();
 }
