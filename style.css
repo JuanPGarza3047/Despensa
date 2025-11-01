@@ -79,19 +79,8 @@ button.comprado {
   color: green;
 }
 
-/* Drag handle */
-.drag-handle {
-  cursor: grab;
-  font-size: 18px;
-  user-select: none;
-}
-
-.drag-handle:active {
-  cursor: grabbing;
-}
-
-/* Visual feedback al arrastrar */
-li.dragging {
+/* Visual feedback al arrastrar (ghost class used by Sortable) */
+.sortable-ghost {
   opacity: 0.5;
   background-color: var(--color-borde);
   transform: scale(1.02);
