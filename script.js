@@ -14,7 +14,7 @@ window.onload = function() {
     document.getElementById("modoBtn").textContent = "☀️";
   }
 
-  activarDragAndDrop();
+  activarSortable(); // Inicializa reordenamiento
 };
 
 function agregarProducto() {
@@ -32,12 +32,6 @@ function agregarProducto() {
 
 function crearElemento(texto, comprado) {
   const li = document.createElement('li');
-
-  // Drag handle
-  const handle = document.createElement('span');
-  handle.textContent = "↕️";
-  handle.classList.add('drag-handle');
-  li.appendChild(handle);
 
   // Texto
   const span = document.createElement('span');
@@ -91,57 +85,28 @@ function toggleModo() {
 }
 
 /* ================================
-   🚀 Drag and Drop
+   🚀 SortableJS con long press
 ================================== */
-function activarDragAndDrop() {
+function activarSortable() {
   const listaDOM = document.getElementById('listaCompras');
-  let draggedItem = null;
 
-  listaDOM.addEventListener('dragstart', (e) => {
-    if (!e.target.classList.contains('drag-handle') && !e.target.closest('.drag-handle')) return;
-    draggedItem = e.target.closest('li');
-    draggedItem.classList.add('dragging');
-  });
-
-  listaDOM.addEventListener('dragend', (e) => {
-    if (draggedItem) {
-      draggedItem.classList.remove('dragging');
-      draggedItem = null;
-      actualizarOrdenLista();
-    }
-  });
-
-  listaDOM.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    const dragging = document.querySelector('.dragging');
-    if (!dragging) return;
-    const afterElement = getDragAfterElement(listaDOM, e.clientY);
-    if (afterElement == null) {
-      listaDOM.appendChild(dragging);
-    } else {
-      listaDOM.insertBefore(dragging, afterElement);
+  Sortable.create(listaDOM, {
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    delay: 200,           // tiempo de pulsación larga (ms)
+    delayOnTouchOnly: true, // solo aplica en pantallas táctiles
+    onEnd: function() {
+      actualizarOrdenDesdeDOM();
     }
   });
 }
 
-function getDragAfterElement(container, y) {
-  const draggableElements = [...container.querySelectorAll('li:not(.dragging)')];
-  return draggableElements.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    if (offset < 0 && offset > closest.offset) {
-      return { offset: offset, element: child };
-    } else {
-      return closest;
-    }
-  }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-function actualizarOrdenLista() {
-  const items = document.querySelectorAll('#listaCompras li span:nth-of-type(2)');
+// Guarda el nuevo orden en localStorage
+function actualizarOrdenDesdeDOM() {
+  const items = document.querySelectorAll('#listaCompras li span');
+  const guardado = JSON.parse(localStorage.getItem("listaCompras")) || [];
   lista = Array.from(items).map(span => {
     const texto = span.textContent;
-    const guardado = JSON.parse(localStorage.getItem("listaCompras")) || [];
     const item = guardado.find(i => i.texto === texto);
     return { texto, comprado: item ? item.comprado : false };
   });
